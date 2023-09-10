@@ -109,6 +109,15 @@
             margin-top: 20px; /* Adjust the margin as needed */
         }
     </style>
+    <script>
+        // Function to send an AJAX request when the tab is closed
+        window.addEventListener('beforeunload', function (event) {
+            // Send an AJAX request to the delete_car_info route
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/delete_car_info', true); // Synchronous request
+            xhr.send();
+        });
+    </script>
 </head>
 <body>
     <div class="container">
@@ -157,13 +166,5 @@
             }, 1000);
         }
     </script>
-    <script>
-        window.addEventListener("beforeunload", function (event) {
-            // Send a request to the server to delete the car_info.html file
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", "/delete_car_info", true);
-            xhr.send();
-        });
-        </script>
 </body>
 </html>

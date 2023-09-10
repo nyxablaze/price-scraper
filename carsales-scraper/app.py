@@ -352,6 +352,7 @@ def index():
             html_file.write(html_template)
 
         print("Car information has been saved to car_info.html.")
+        car_information_exists = True
 
     # Render the HTML template with the form
     return render_template('index.html', car_information_exists=car_information_exists)
@@ -370,18 +371,22 @@ else:
 def car_info():
     return render_template(directory_path, unique_id='car-info-page')
 
-@app.route('/delete_car_info', methods=['GET'])
+@app.route('/delete_car_info', methods=['GET', 'POST'])
 def delete_car_info():
     try:
         # Define the path to the car_info.html file
-        car_info_path = (directory_path)
+        car_info_path = directory_path  # Ensure directory_path is correctly set
 
-        # Check if the file exists and delete it
+        # Check if the file exists
         if os.path.exists(car_info_path):
+            # Attempt to delete the file
             os.remove(car_info_path)
-
-        return "Car info file deleted successfully"
+            return "Car info file deleted successfully"
+        else:
+            return "Car info file does not exist"
     except Exception as e:
+        # Log the error and return an error message
+        print(f"Error deleting car info file: {e}")
         return str(e), 500  # Return an error message if something goes wrong
 
 if __name__ == '__main__':
