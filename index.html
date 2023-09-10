@@ -141,9 +141,11 @@
             <input type="submit" value="Get Car Information">
         </form>
 
-        <div class="car-info" id = 'car-info'>
-
-        </div>>
+        {% if car_information_exists %}
+            <div class="car-info"> <!-- Add a CSS class to this div -->
+                {% include 'car_info.html' ignore missing %}
+            </div>
+            {% endif %}
     </div>
 
     <!-- Overlay HTML -->
@@ -162,24 +164,6 @@
                 // Delay form submission for 1 second
                 event.target.submit(); // Proceed with the form submission
             }, 1000);
-        }
-    
-        // Function to load 'car_info.html' content
-        function loadCarInfo() {
-            var carInfoContainer = document.getElementById("car-info");
-    
-            // Make an AJAX request to load 'car_info.html'
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'car_info.html', true);
-    
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    // Insert the received content into the container
-                    carInfoContainer.innerHTML = xhr.responseText;
-                }
-            };
-    
-            xhr.send();
         }
     </script>
 </body>

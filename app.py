@@ -353,14 +353,13 @@ def index():
 
         print("Car information has been saved to car_info.html.")
         car_information_exists = True
-
     # Render the HTML template with the form
     return render_template('index.html', car_information_exists=car_information_exists)
 
 directory = os.getcwd()
 print(directory)
 if architecture == "Windows":
-    directory_path = (directory + r"\car_info.html")
+    directory_path = (directory + r"\\car_info.html")
 elif architecture in ["Linux", "Darwin"]:
     directory_path = (directory + r"/car_info.html")
 else:
@@ -369,6 +368,7 @@ else:
 
 @app.route('/car_info')
 def car_info():
+    print(directory_path + 'car_info.html')
     return render_template(directory_path, unique_id='car-info-page')
 
 @app.route('/delete_car_info', methods=['GET', 'POST'])
