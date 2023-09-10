@@ -122,7 +122,7 @@
 <body>
     <div class="container">
         <h1>Car Information Lookup</h1>
-        <form method="POST" onsubmit="showOverlay(event)">
+        <form method="POST" onsubmit="showOverlay(event); loadCarInfo();">
             <label for="make">Make:</label>
             <input type="text" id="make" name="make" required>
 
@@ -141,11 +141,9 @@
             <input type="submit" value="Get Car Information">
         </form>
 
-        {% if car_information_exists %}
-            <div class="car-info"> <!-- Add a CSS class to this div -->
-                {% include 'car_info.html' ignore missing %}
-            </div>
-        {% endif %}
+        <div class="car-info" id = 'car-info'>
+
+        </div>>
     </div>
 
     <!-- Overlay HTML -->
@@ -159,11 +157,29 @@
             event.preventDefault(); // Prevent form submission
             var overlay = document.getElementById("overlay");
             overlay.style.display = "flex"; // Show the overlay
-
-            setTimeout(function() {
+    
+            setTimeout(function () {
                 // Delay form submission for 1 second
                 event.target.submit(); // Proceed with the form submission
             }, 1000);
+        }
+    
+        // Function to load 'car_info.html' content
+        function loadCarInfo() {
+            var carInfoContainer = document.getElementById("car-info");
+    
+            // Make an AJAX request to load 'car_info.html'
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'car_info.html', true);
+    
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    // Insert the received content into the container
+                    carInfoContainer.innerHTML = xhr.responseText;
+                }
+            };
+    
+            xhr.send();
         }
     </script>
 </body>
