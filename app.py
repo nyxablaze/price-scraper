@@ -251,7 +251,10 @@ def index():
 
         # Check if a matching body type was found
         if not matching_body_type_found:
-            print(f"No website with the bodytype '{bodytype}' was found.")
+            if not bodytype:
+                print("No website matched because bodytype is blank.")
+            else:
+                print(f"No website with the bodytype '{bodytype}' was found.")
 
         # Load the HTML content from output.html with the specified encoding
         with open('output.html', 'r', encoding='utf-8-sig', errors='ignore') as file:
@@ -359,7 +362,7 @@ def index():
 directory = os.getcwd()
 print(directory)
 if architecture == "Windows":
-    directory_path = (directory + r"\\car_info.html")
+    directory_path = (directory + r"\car_info.html")
 elif architecture in ["Linux", "Darwin"]:
     directory_path = (directory + r"/car_info.html")
 else:
@@ -368,8 +371,16 @@ else:
 
 @app.route('/car_info')
 def car_info():
-    print(directory_path + 'car_info.html')
-    return render_template(directory_path, unique_id='car-info-page')
+    directory = os.getcwd()
+    print(directory)
+    if architecture == "Windows":
+        directory_path = (directory + r"\car_info.html")
+    elif architecture in ["Linux", "Darwin"]:
+        directory_path = (directory + r"/car_info.html")
+    else:
+        print("UNKNOWN OS, wtf bro")
+        exit()
+    return render_template('car_info.html', unique_id='car-info-page')
 
 @app.route('/delete_car_info', methods=['GET', 'POST'])
 def delete_car_info():
@@ -390,4 +401,4 @@ def delete_car_info():
         return str(e), 500  # Return an error message if something goes wrong
 
 if __name__ == '__main__':
-    app.run(debug=False, host='localhost', port=8080)
+    app.run(debug=True, host='localhost', port=8080)

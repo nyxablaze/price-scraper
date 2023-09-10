@@ -117,12 +117,42 @@
             xhr.open('GET', '/delete_car_info', true); // Synchronous request
             xhr.send();
         });
+
+        // Function to fetch and update car_info.html
+        function updateCarInfo() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/get_car_info', true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var carInfoDiv = document.querySelector('.car-info');
+                        carInfoDiv.innerHTML = xhr.responseText;
+                    }
+                }
+            };
+
+            xhr.send();
+        }
+
+        // Function to show overlay and delay form submission
+        function showOverlay(event) {
+            event.preventDefault(); // Prevent form submission
+            var overlay = document.getElementById("overlay");
+            overlay.style.display = "flex"; // Show the overlay
+
+            setTimeout(function () {
+                // Delay form submission for 1 second
+                event.target.submit(); // Proceed with the form submission
+                updateCarInfo(); // Fetch and update car_info.html after submission
+            }, 1000);
+        }
     </script>
 </head>
 <body>
     <div class="container">
         <h1>Car Information Lookup</h1>
-        <form method="POST" onsubmit="showOverlay(event); loadCarInfo();">
+        <form method="POST" onsubmit="showOverlay(event);">
             <label for="make">Make:</label>
             <input type="text" id="make" name="make" required>
 
@@ -142,10 +172,10 @@
         </form>
 
         {% if car_information_exists %}
-            <div class="car-info"> <!-- Add a CSS class to this div -->
-                {% include 'car_info.html' ignore missing %}
-            </div>
-            {% endif %}
+        <div class="car-info"> <!-- Add a CSS class to this div -->
+            {% include 'car_info.html' ignore missing %}
+        </div>
+        {% endif %}
     </div>
 
     <!-- Overlay HTML -->
@@ -153,7 +183,6 @@
         <div class="spinner"></div>
         <p>Working...</p>
     </div>
-
     <script>
         function showOverlay(event) {
             event.preventDefault(); // Prevent form submission
@@ -165,6 +194,33 @@
                 event.target.submit(); // Proceed with the form submission
             }, 1000);
         }
+        function updateCarInfo() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/car_info', true);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var carInfoDiv = document.querySelector('.car-info');
+                    carInfoDiv.innerHTML = xhr.responseText;
+                }
+            }
+        };
+
+        xhr.send();
+    }
+
+    // Call the updateCarInfo function when the page loads
+    window.addEventListener('load', function () {
+        updateCarInfo();
+    });
+    </script>
+
+    <script>
+        // Call the updateCarInfo function when the page loads
+        window.addEventListener('load', function () {
+            updateCarInfo();
+        });
     </script>
 </body>
 </html>
