@@ -14,11 +14,11 @@ architecture = platform.system()
 
 
 if architecture == "Windows":
-    directory_path = (directory + r"\carsales-scraper\templates\\")
-    directory = r'\carsales-scraper\\'
+    directory_path = (directory + r"\\")
+    
 elif architecture in ["Linux", "Darwin"]:
-    directory_path = (directory + r"/carsales-scraper/templates/")
-    directory = r'/carsales-scraper/'
+    directory_path = (directory + r"/")
+    
 
 
 app = Flask(__name__, static_folder=directory, template_folder=directory_path)
@@ -31,11 +31,11 @@ def index():
     architecture = platform.system()
 
     if architecture == "Windows":
-        directory_path = (directory + r"\carsales-scraper\templates\\")
-        directory = r'\carsales-scraper\\'
+        directory_path = (directory + r"\\")
+        
     elif architecture in ["Linux", "Darwin"]:
-        directory_path = (directory + r"/carsales-scraper/templates/")
-        directory = r'/carsales-scraper/'
+        directory_path = (directory + r"/")
+       
 
     car_information_exists = os.path.isfile(directory_path + 'car_info.html')
     if request.method == 'POST':
@@ -75,9 +75,9 @@ def index():
         dict_href_links = {}
 
         if architecture == "Windows":
-            directory_path = (directory + r"\carsales-scraper\\")
+            directory_path = (directory + r"\\")
         elif architecture in ["Linux", "Darwin"]:
-            directory_path = (directory + r"/carsales-scraper/")
+            directory_path = (directory + r"/")
         else:
             print("UNKNOWN OS, wtf bro")
             exit()
@@ -342,9 +342,9 @@ def index():
         # Save the HTML template to car_info.html
 
         if architecture == "Windows":
-            directory_path = (directory + r"\carsales-scraper\templates\\")
+            directory_path = (directory + r"\\")
         elif architecture in ["Linux", "Darwin"]:
-            directory_path = (directory + r"/carsales-scraper/templates/")
+            directory_path = (directory + r'/')
         else:
             print("UNKNOWN OS, wtf bro")
             exit()
@@ -358,11 +358,11 @@ def index():
     return render_template('index.html', car_information_exists=car_information_exists)
 
 directory = os.getcwd()
-
+print(directory)
 if architecture == "Windows":
-    directory_path = (directory + r"\carsales-scraper\templates\car_info.html")
+    directory_path = (directory + r"\car_info.html")
 elif architecture in ["Linux", "Darwin"]:
-    directory_path = (directory + r"/carsales-scraper/templates/car_info.html")
+    directory_path = (directory + r"/car_info.html")
 else:
     print("UNKNOWN OS, wtf bro")
     exit()
@@ -390,4 +390,4 @@ def delete_car_info():
         return str(e), 500  # Return an error message if something goes wrong
 
 if __name__ == '__main__':
-    app.run(debug=True, host='192.168.0.153', port=8080)
+    app.run(debug=False, host='0.0.0.0', port=8080)
