@@ -401,4 +401,4 @@ def delete_car_info():
         return str(e), 500  # Return an error message if something goes wrong
 
 if __name__ == '__main__':
-    app.run(debug=False, host='localhost', port=8080)
+    app.run(debug=False, host='0.0.0.0', port=8080)
