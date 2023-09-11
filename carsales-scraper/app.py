@@ -424,13 +424,13 @@ directory = os.getcwd()
 
 @app.route('/car_info')
 def car_info():
-    return render_template('/home/nyxablaze/price-sales/carsales-scraper/templates/car_info.html', unique_id='car-info-page')
+    return render_template('/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html', unique_id='car-info-page')
 
 @app.route('/delete_car_info', methods=['GET', 'POST'])
 def delete_car_info():
     try:
         # Define the path to the car_info.html file
-        car_info_path = '/home/nyxablaze/price-sales/carsales-scraper/templates/car_info.html'  # Ensure directory_path is correctly set
+        car_info_path = '/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html'  # Ensure directory_path is correctly set
 
         # Check if the file exists
         if os.path.exists(car_info_path):

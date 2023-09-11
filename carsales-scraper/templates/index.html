@@ -87,9 +87,10 @@
             height: 100%;
             background-color: rgba(128, 0, 0, 0.5); /* Grayish-red overlay color */
             z-index: 9999;
+            transform: scale(2);
+            transform-origin: center;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
             color: white;
         }
 
@@ -100,6 +101,8 @@
             width: 30px;
             height: 30px;
             animation: spin 1s linear infinite;
+            transform: scale(2);
+            transform-origin: center;
         }
 
         @keyframes spin {
@@ -115,9 +118,9 @@
     <script>
         // Function to send an AJAX request when the tab is closed
         window.addEventListener('beforeunload', function (event) {
-            // Send an AJAX request to the delete_car_info route
+            // Create a synchronous AJAX request
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/delete_car_info', true); // Synchronous request
+            xhr.open('GET', '/delete_car_info', true); 
             xhr.send();
         });
     </script>
@@ -126,7 +129,7 @@
     <div class="container">
         <h1>Car Information Lookup</h1>
         <form method="POST" onsubmit="showOverlay(event)">
-            <label for="make">Remember to enter the exact info, as this tool searches for the right carsales url<br><br>note not all cars will have photos<br><br>Make:</label>
+            <label for="make">Make:</label>
             <input type="text" id="make" name="make" required>
 
             <label for="model">Model:</label>
@@ -135,7 +138,7 @@
             <label for="year">Year:</label>
             <input type="text" id="year" name="year" required>
 
-            <label for="variant">Variant (include dashes e.g. mx-5 not mx5)<br> if unsure, or don't care, write 'any' and leave bodytype <br> this will give you price range for all variants</label>
+            <label for="variant">Variant</label>
             <input type="text" id="variant" name="variant">
 
             <label for="bodytype">Body Type:</label>
@@ -143,8 +146,8 @@
 
             <input type="submit" value="Get Car Information">
         </form>
-	<h2>documentation is in process for the purpose of cleaning this site up</h2>
-	<h3>for cars with no badge, leave variant field <b>empty</b></h3>
+	<a href='https://nyxablaze.github.io/documentation/sidescraper.html'><h3>documentation</h3></a>
+	
         {% if car_information_exists %}
             <div class="car-info"> <!-- Add a CSS class to this div -->
                 {% include 'car_info.html' ignore missing %}
@@ -168,6 +171,20 @@
                 // Delay form submission for 1 second
                 event.target.submit(); // Proceed with the form submission
             }, 1000);
+        }
+        // Function to manually trigger the /delete_car_info route
+        function deleteCarInfo() {
+        var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/delete_car_info', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    // Reload the page to reflect the updated state
+                    location.reload();
+                } else {
+                    console.error('Failed to delete car info.');
+                }
+            };
+            xhr.send();
         }
     </script>
 </body>
