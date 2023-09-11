@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=0.5">
     <title>CarSales Widget</title>
     <style>
         body {
@@ -12,6 +13,8 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            transform: scale(0.8);
+            transform-origin: center;
         }
 
         .container {
@@ -123,7 +126,7 @@
     <div class="container">
         <h1>Car Information Lookup</h1>
         <form method="POST" onsubmit="showOverlay(event)">
-            <label for="make">Make:</label>
+            <label for="make">Remember to enter the exact info, as this tool searches for the right carsales url<br><br>note not all cars will have photos<br><br>Make:</label>
             <input type="text" id="make" name="make" required>
 
             <label for="model">Model:</label>
@@ -132,7 +135,7 @@
             <label for="year">Year:</label>
             <input type="text" id="year" name="year" required>
 
-            <label for="variant">Variant (include dashes, e.g., mx-5 not mx5)<br> if left blank, will assume no-badge model:</label>
+            <label for="variant">Variant (include dashes e.g. mx-5 not mx5)<br> if unsure, or don't care, write 'any' and leave bodytype <br> this will give you price range for all variants</label>
             <input type="text" id="variant" name="variant">
 
             <label for="bodytype">Body Type:</label>
@@ -140,7 +143,8 @@
 
             <input type="submit" value="Get Car Information">
         </form>
-
+	<h2>documentation is in process for the purpose of cleaning this site up</h2>
+	<h3>for cars with no badge, leave variant field <b>empty</b></h3>
         {% if car_information_exists %}
             <div class="car-info"> <!-- Add a CSS class to this div -->
                 {% include 'car_info.html' ignore missing %}

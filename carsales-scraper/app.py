@@ -13,17 +13,7 @@ directory = os.getcwd()
 architecture = platform.system()
 
 
-if architecture == "Windows":
-    directory_path = (directory + r"\carsales-scraper\templates\\")
-    directory = r'\carsales-scraper\\'
-elif architecture in ["Linux", "Darwin"]:
-    directory_path = (directory + r"/carsales-scraper/templates/")
-    directory = r'/carsales-scraper/'
-
-
-app = Flask(__name__, static_folder=directory, template_folder=directory_path)
-
-
+app = Flask(__name__, static_folder='/home/nyxablaze/price-scraper/carsales-scraper', template_folder='/home/nyxablaze/price-scraper/carsales-scraper/templates')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -37,7 +27,9 @@ def index():
         directory_path = (directory + r"/carsales-scraper/templates/")
         directory = r'/carsales-scraper/'
 
-    car_information_exists = os.path.isfile(directory_path + 'car_info.html')
+    price_range_text = None
+
+    car_information_exists = os.path.isfile('/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html')
     if request.method == 'POST':
         # Get user inputs from the form
         make = request.form.get('make').lower()
@@ -45,8 +37,8 @@ def index():
         model = request.form.get('model').lower()
         year = request.form.get('year').lower()
         variant = request.form.get('variant').lower()
+        variant = variant.replace (' ', '-')
         bodytype = request.form.get('bodytype').lower()
-
         if bodytype == 'hatchback':
             bodytype = 'hatch'
         
@@ -67,20 +59,6 @@ def index():
         def getdata(url):
             r = requests.get(url)
             return r.text
-
-        directory = os.getcwd()
-        architecture = platform.system()
-
-        # Create an empty dict
-        dict_href_links = {}
-
-        if architecture == "Windows":
-            directory_path = (directory + r"\carsales-scraper\\")
-        elif architecture in ["Linux", "Darwin"]:
-            directory_path = (directory + r"/carsales-scraper/")
-        else:
-            print("UNKNOWN OS, wtf bro")
-            exit()
 
         def get_links(website_link):
             html_data = getdata(website_link)
@@ -181,7 +159,7 @@ def index():
         with open(urls, 'w') as f:
             f.write(filedata)
 
-        # scraper
+        # scraper for specified car
 
         urls2 = open('data.txt', 'r', encoding='utf-8-sig', errors='ignore')
         data = urls2.read()
@@ -193,11 +171,12 @@ def index():
         price_when_new = None
         private_price_guide = None
         image_url = None
-
         # Loop through the URLs
         for url in data_to_list:
             try:
                 bodytype = request.form.get('bodytype').lower()
+                if bodytype == 'hatchback':
+                    bodytype = 'hatch'
                 response = requests.get(url)
                 if response.status_code != 200:
                     print(f"HTTP Error {response.status_code}: An error occurred for {url}")
@@ -218,27 +197,45 @@ def index():
                             print(f"HTML file {optionstring} contains the bodytype: {bodytype}")
                             matching_body_type_found = True
 
-                            # Extract price data
-                            price_when_new_element = soup.find('div', class_='items').find('p', class_='label', string='Price when new (EGC) ^')
-                            if price_when_new_element:
-                                price_when_new = price_when_new_element.find_next('p', class_='highlight-text').text.strip()
+                            if variant == 'any' and bodytype == '':
+                                price_range_element = soup.find('div', class_='row item-main-photo pb-4').find('span', class_='highlight-label', string='Price Range ^')
+                                if price_range_element:
+                                    price_range_text = price_range_element.find_next('span', class_='highlight-text').text.strip()
 
-                            private_price_guide_element = soup.find('div', class_='items').find('p', class_='label', string='Private price guide **')
-                            if private_price_guide_element:
-                                private_price_guide = private_price_guide_element.find_next('p', class_='highlight-text').text.strip()
+                                # Extract image URL
+                                image_element = soup.find('img', class_='item-image')
+                                if image_element:
+                                    image_url = image_element['src']
 
-                            # Extract image URL
-                            image_element = soup.find('img', class_='item-image')
-                            if image_element:
-                                image_url = image_element['src']
+                                # Save the website content to output.html
+                                with open('output.html', 'w', errors='ignore') as file:
+                                    # Include the extracted data in the output.html file
+                                    file.write(f"Price Range: {price_when_new}\n")
+                                    file.write(f"Image URL: {image_url}\n\n")
+                                    file.write(html_content)
 
-                            # Save the website content to output.html
-                            with open('output.html', 'w', errors='ignore') as file:
-                                # Include the extracted data in the output.html file
-                                file.write(f"Price when new (EGC): {price_when_new}\n")
-                                file.write(f"Private price guide: {private_price_guide}\n")
-                                file.write(f"Image URL: {image_url}\n\n")
-                                file.write(html_content)
+                            else:
+                                # Extract price data
+                                price_when_new_element = soup.find('div', class_='items').find('p', class_='label', string='Price when new (EGC) ^')
+                                if price_when_new_element:
+                                    price_when_new = price_when_new_element.find_next('p', class_='highlight-text').text.strip()
+
+                                private_price_guide_element = soup.find('div', class_='items').find('p', class_='label', string='Private price guide **')
+                                if private_price_guide_element:
+                                    private_price_guide = private_price_guide_element.find_next('p', class_='highlight-text').text.strip()
+
+                                # Extract image URL
+                                image_element = soup.find('img', class_='item-image')
+                                if image_element:
+                                    image_url = image_element['src']
+
+                                # Save the website content to output.html
+                                with open('output.html', 'w', errors='ignore') as file:
+                                    # Include the extracted data in the output.html file
+                                    file.write(f"Price when new (EGC): {price_when_new}\n")
+                                    file.write(f"Private price guide: {private_price_guide}\n")
+                                    file.write(f"Image URL: {image_url}\n\n")
+                                    file.write(html_content)
 
                             # Break the loop since a matching body type is found
                             break
@@ -265,117 +262,175 @@ def index():
             elements = soup.find_all(lambda tag: tag.name.lower() == tag_name.lower() and text.lower() in tag.get_text().lower())
             return elements
 
-        # Extract the price when new (EGC)
-        price_when_new_elements = find_element_case_insensitive('p', 'Price when new (EGC) ^')
-        if price_when_new_elements:
-            price_when_new = price_when_new_elements[0].find_next('p', class_='highlight-text')
-            if price_when_new:
-                price_when_new = price_when_new.text.strip()
+        if variant == 'any' and bodytype == '':
+            price_range_element = find_element_case_insensitive('span', 'Price Range ^')
+            if price_range_element:
+                price_range_text = price_range_element[0].find_next('span', class_='highlight-text')
+                if price_range_text:
+                    price_range_text = price_range_text.text.strip()
+                else:
+                    price_range_text = "N/A"
+            else:
+                price_range_text = "N/A"
+
+            # Extract the image URL
+            image_element = soup.find('img', class_='item-image')
+            if image_element:
+                image_url = image_element['src']
+            else:
+                image_url = ""
+
+            # Break the loop since a matching body type is found
+                        
+            # Create an HTML template with extracted information and a modern style
+            html_template = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Car Information</title>
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        background-color: #f0f0f0;
+                        margin: 0;
+                        padding: 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                    }}
+                    .container {{
+                        background-color: #fff;
+                        border-radius: 8px;
+                        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+                        padding: 20px;
+                        text-align: center;
+                    }}
+                    .highlight-text {{
+                        color: #007BFF;
+                    }}
+                    .car-image {{
+                        max-width: 100%;
+                        height: auto;
+                        margin-top: 20px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Car Information</h1>
+                   <p><strong>Price Range:</strong> <span class="highlight-text">{price_range_text}</span></p>
+                    <img class="car-image" src="{image_url}" alt="Car Image">
+                </div>
+            </body>
+            </html>
+            """
+
+            # Save the HTML template to car_info.html
+
+            with open('/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html', 'w', encoding='utf-8') as html_file:
+                html_file.write(html_template)
+
+            print("Car information has been saved to car_info.html.")
+            car_information_exists = True
+        else:
+            # Extract the price when new (EGC)
+            price_when_new_elements = find_element_case_insensitive('p', 'Price when new (EGC) ^')
+            if price_when_new_elements:
+                price_when_new = price_when_new_elements[0].find_next('p', class_='highlight-text')
+                if price_when_new:
+                    price_when_new = price_when_new.text.strip()
+                else:
+                    price_when_new = "N/A"
             else:
                 price_when_new = "N/A"
-        else:
-            price_when_new = "N/A"
 
-        # Extract the private price guide
-        private_price_guide_elements = find_element_case_insensitive('p', 'Private price guide **')
-        if private_price_guide_elements:
-            private_price_guide = private_price_guide_elements[0].find_next('p', class_='highlight-text')
-            if private_price_guide:
-                private_price_guide = private_price_guide.text.strip()
+            # Extract the private price guide
+            private_price_guide_elements = find_element_case_insensitive('p', 'Private price guide **')
+            if private_price_guide_elements:
+                private_price_guide = private_price_guide_elements[0].find_next('p', class_='highlight-text')
+                if private_price_guide:
+                    private_price_guide = private_price_guide.text.strip()
+                else:
+                    private_price_guide = "N/A"
             else:
                 private_price_guide = "N/A"
-        else:
-            private_price_guide = "N/A"
 
-        # Extract the image URL
-        image_element = soup.find('img', class_='item-image')
-        if image_element:
-            image_url = image_element['src']
-        else:
-            image_url = ""
+            # Extract the image URL
+            image_element = soup.find('img', class_='item-image')
+            if image_element:
+                image_url = image_element['src']
+            else:
+                image_url = ""
 
-        # Create an HTML template with extracted information and a modern style
-        html_template = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Car Information</title>
-            <style>
-                body {{
-                    font-family: Arial, sans-serif;
-                    background-color: #f0f0f0;
-                    margin: 0;
-                    padding: 0;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                }}
-                .container {{
-                    background-color: #fff;
-                    border-radius: 8px;
-                    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
-                    padding: 20px;
-                    text-align: center;
-                }}
-                .highlight-text {{
-                    color: #007BFF;
-                }}
-                .car-image {{
-                    max-width: 100%;
-                    height: auto;
-                    margin-top: 20px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Car Information</h1>
-                <p><strong>Price when new (EGC):</strong> <span class="highlight-text">{price_when_new}</span></p>
-                <p><strong>Private price guide:</strong> <span class="highlight-text">{private_price_guide}</span></p>
-                <img class="car-image" src="{image_url}" alt="Car Image">
-            </div>
-        </body>
-        </html>
-        """
+            # Create an HTML template with extracted information and a modern style
+            html_template = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Car Information</title>
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        background-color: #f0f0f0;
+                        margin: 0;
+                        padding: 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                    }}
+                    .container {{
+                        background-color: #fff;
+                        border-radius: 8px;
+                        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+                        padding: 20px;
+                        text-align: center;
+                    }}
+                    .highlight-text {{
+                        color: #007BFF;
+                    }}
+                    .car-image {{
+                        max-width: 100%;
+                        height: auto;
+                        margin-top: 20px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Car Information</h1>
+                    <p><strong>Price when new (EGC):</strong> <span class="highlight-text">{price_when_new}</span></p>
+                    <p><strong>Private price guide:</strong> <span class="highlight-text">{private_price_guide}</span></p>
+                    <img class="car-image" src="{image_url}" alt="Car Image">
+                </div>
+            </body>
+            </html>
+            """
 
-        # Save the HTML template to car_info.html
+            # Save the HTML template to car_info.html
 
-        if architecture == "Windows":
-            directory_path = (directory + r"\carsales-scraper\templates\\")
-        elif architecture in ["Linux", "Darwin"]:
-            directory_path = (directory + r"/carsales-scraper/templates/")
-        else:
-            print("UNKNOWN OS, wtf bro")
-            exit()
-        with open(directory_path + 'car_info.html', 'w', encoding='utf-8') as html_file:
-            html_file.write(html_template)
+            with open('/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html', 'w', encoding='utf-8') as html_file:
+                html_file.write(html_template)
 
-        print("Car information has been saved to car_info.html.")
-        car_information_exists = True
+            print("Car information has been saved to car_info.html.")
+            car_information_exists = True
+
 
     # Render the HTML template with the form
     return render_template('index.html', car_information_exists=car_information_exists)
 
 directory = os.getcwd()
 
-if architecture == "Windows":
-    directory_path = (directory + r"\carsales-scraper\templates\car_info.html")
-elif architecture in ["Linux", "Darwin"]:
-    directory_path = (directory + r"/carsales-scraper/templates/car_info.html")
-else:
-    print("UNKNOWN OS, wtf bro")
-    exit()
-
 @app.route('/car_info')
 def car_info():
-    return render_template(directory_path, unique_id='car-info-page')
+    return render_template('/home/nyxablaze/price-sales/carsales-scraper/templates/car_info.html', unique_id='car-info-page')
 
 @app.route('/delete_car_info', methods=['GET', 'POST'])
 def delete_car_info():
     try:
         # Define the path to the car_info.html file
-        car_info_path = directory_path  # Ensure directory_path is correctly set
+        car_info_path = '/home/nyxablaze/price-sales/carsales-scraper/templates/car_info.html'  # Ensure directory_path is correctly set
 
         # Check if the file exists
         if os.path.exists(car_info_path):
