@@ -39,11 +39,29 @@ def index():
         variant = request.form.get('variant').lower()
         variant = variant.replace (' ', '-')
         bodytype = request.form.get('bodytype').lower()
+
         if bodytype == 'hatchback':
             bodytype = 'hatch'
         
         if variant == '':
             variant = "no-badge"
+
+        def delete_car_info():
+            try:
+                # Define the path to the car_info.html file
+                car_info_path = '/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html'  # Ensure directory_path is correctly set
+
+                # Check if the file exists
+                if os.path.exists(car_info_path):
+                    # Attempt to delete the file
+                    os.remove(car_info_path)
+                    return "Car info file deleted successfully"
+                else:
+                    return "Car info file does not exist"
+            except Exception as e:
+                # Log the error and return an error message
+                print(f"Error deleting car info file: {e}")
+                return str(e), 500  # Return an error message if something goes wrong
 
         def check_bodytype(html_content, bodytype):
             soup = BeautifulSoup(html_content, 'html.parser')
