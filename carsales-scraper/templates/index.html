@@ -57,7 +57,7 @@
             border-radius: 4px;
         }
 
-        form input[type="submit"] {
+        .github.io        form input[type="submit"] {
             background-color: #007BFF;
             color: white;
             border: none;
@@ -101,15 +101,16 @@
             width: 30px;
             height: 30px;
             animation: spin 1s linear infinite;
-            transform: scale(2);
-            transform-origin: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
         /* Add margin to car_info.html section */
         .car-info {
             margin-top: 20px; /* Adjust the margin as needed */
@@ -146,19 +147,24 @@
 
             <input type="submit" value="Get Car Information">
         </form>
-	<a href='https://nyxablaze.github.io/documentation/sidescraper.html'><h3>documentation</h3></a>
+	<a href='https://nyxablaze.tech/documentation/sidescraper.html'><h3>documentation</h3></a>
 	
         {% if car_information_exists %}
             <div class="car-info"> <!-- Add a CSS class to this div -->
                 {% include 'car_info.html' ignore missing %}
             </div>
         {% endif %}
+        {% if error_message %}
+        <div class="error_message">
+        <p>{{ error_message }}</p>
+        </div>
+        {% endif %}
+    
     </div>
 
     <!-- Overlay HTML -->
     <div id="overlay" class="overlay">
         <div class="spinner"></div>
-        <p>Working...</p>
     </div>
 
     <script>

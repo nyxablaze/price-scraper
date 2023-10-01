@@ -19,6 +19,7 @@ app = Flask(__name__, static_folder='/home/nyxablaze/price-scraper/carsales-scra
 def index():
     directory = os.getcwd()
     architecture = platform.system()
+    error_message = None
 
     if architecture == "Windows":
         directory_path = (directory + r"\carsales-scraper\templates\\")
@@ -39,6 +40,7 @@ def index():
         variant = request.form.get('variant').lower()
         variant = variant.replace (' ', '-')
         bodytype = request.form.get('bodytype').lower()
+
         if bodytype == 'hatchback':
             bodytype = 'hatch'
         
@@ -180,6 +182,8 @@ def index():
                 response = requests.get(url)
                 if response.status_code != 200:
                     print(f"HTTP Error {response.status_code}: An error occurred for {url}")
+                    error_message = "The provided inputs did not match any cars. Please check again"
+                    return render_template('index.html', car_information_exists=False, error_message=error_message)
                 else:
                     option = option + 1
                     optionstring = str(option)
@@ -245,6 +249,8 @@ def index():
                         print("No title found for", url)
             except Exception as ex:
                 print(f"An error occurred for {url}: {ex}")
+                error_message = "The provided input did not match any cars. Please check your input and try again."
+                print(error_message)
 
         # Check if a matching body type was found
         if not matching_body_type_found:
@@ -318,7 +324,7 @@ def index():
             </head>
             <body>
                 <div class="container">
-                    <h1>Car Information</h1>
+                    <h1>Car Information</h1>delete
                    <p><strong>Price Range:</strong> <span class="highlight-text">{price_range_text}</span></p>
                     <img class="car-image" src="{image_url}" alt="Car Image">
                 </div>
@@ -415,10 +421,9 @@ def index():
 
             print("Car information has been saved to car_info.html.")
             car_information_exists = True
+            print("car information found")
 
-
-    # Render the HTML template with the form
-    return render_template('index.html', car_information_exists=car_information_exists)
+    return render_template('index.html', car_information_exists=car_information_exists, error_message=error_message)
 
 directory = os.getcwd()
 
