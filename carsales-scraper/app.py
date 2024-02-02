@@ -8,31 +8,34 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 from urllib.parse import urljoin, urlparse
 from jinja2 import TemplateNotFound
+from datetime import datetime
 import atexit
 directory = os.getcwd()
 architecture = platform.system()
-
+logcounter = 0
 
 app = Flask(__name__, static_folder='/home/nyxablaze/price-scraper/carsales-scraper', template_folder='/home/nyxablaze/price-scraper/carsales-scraper/templates')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    global logcounter
     directory = os.getcwd()
     architecture = platform.system()
     error_message = None
 
     if architecture == "Windows":
-        directory_path = (directory + r"\carsales-scraper\templates\\")
-        directory = r'\carsales-scraper\\'
+        directory_path = (directory + r"\\")
+        
     elif architecture in ["Linux", "Darwin"]:
-        directory_path = (directory + r"/carsales-scraper/templates/")
-        directory = r'/carsales-scraper/'
+        directory_path = (directory + r"/")
+       
 
     price_range_text = None
 
     car_information_exists = os.path.isfile('/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html')
     if request.method == 'POST':
         # Get user inputs from the form
+        print("REQUEST RECIEVED")
         make = request.form.get('make').lower()
         make = make.replace (' ', '-')
         model = request.form.get('model').lower()
@@ -40,6 +43,24 @@ def index():
         variant = request.form.get('variant').lower()
         variant = variant.replace (' ', '-')
         bodytype = request.form.get('bodytype').lower()
+        now = datetime.now()
+        while os.path.exists('/home/nyxablaze/price-scraper/carsales-scraper/logs/log' + str(logcounter)):
+            logcounter += 1
+        os.mkdir('/home/nyxablaze/price-scraper/carsales-scraper/logs/log' + str(logcounter))
+        with open("/home/nyxablaze/price-scraper/carsales-scraper/logs/log" + str(logcounter) + "/log" + str(logcounter) + '.txt', 'w') as f:
+            f.write(make)
+            f.write('\n')
+            f.write(model)
+            f.write('\n')
+            f.write(year)
+            f.write('\n')
+            f.write(variant)
+            f.write('\n')
+            f.write(bodytype)
+            f.write('\n \n')
+            f.write("the date was ")
+            f.write(str(now))
+            f.write(" UTC")
 
         if bodytype == 'hatchback':
             bodytype = 'hatch'
@@ -182,7 +203,11 @@ def index():
                 response = requests.get(url)
                 if response.status_code != 200:
                     print(f"HTTP Error {response.status_code}: An error occurred for {url}")
-                    error_message = "The provided inputs did not match any cars. Please check again"
+                    print(f"An error occurred for {url}: {ex}")
+                    error_message = "The provided inputs did not match any cars. Please check your inputs, and try again"
+                    with open("/home/nyxablaze/price-scraper/carsales-scraper/logs/log" + str(logcounter) + "/log" + str(logcounter) + '.txt', 'a') as f:
+                        f.write("\n \nERROR - search inputs matched no results.")
+                    logcounter += 1
                     return render_template('index.html', car_information_exists=False, error_message=error_message)
                 else:
                     option = option + 1
@@ -247,14 +272,20 @@ def index():
                             print(f"HTML file {optionstring} does not contain the bodytype: {bodytype}")
                     else:
                         print("No title found for", url)
-            except Exception as ex:
-                print(f"An error occurred for {url}: {ex}")
-                error_message = "The provided input did not match any cars. Please check your input and try again."
-                print(error_message)
+            except:
+                print("an unknown error occurred")
+                error_message = "An unknown error occurred. Please inform the developer, with the steps you did to produce this page."
+                with open("/home/nyxablaze/price-scraper/carsales-scraper/logs/log" + str(logcounter) + "/log" + str(logcounter) + '.txt', 'a') as f:
+                    f.write("\n \nERROR - UNKNOWN ERROR")
+                logcounter += 1
+                return render_template('index.html', car_information_exists=False, error_message=error_message)
 
         # Check if a matching body type was found
         if not matching_body_type_found:
-            print(f"No website with the bodytype '{bodytype}' was found.")
+            if not bodytype:
+                print("No website matched because bodytype is blank.")
+            else:
+                print(f"No website with the bodytype '{bodytype}' was found.")
 
         # Load the HTML content from output.html with the specified encoding
         with open('output.html', 'r', encoding='utf-8-sig', errors='ignore') as file:
@@ -288,7 +319,7 @@ def index():
 
             # Break the loop since a matching body type is found
                         
-            # Create an HTML template with extracted information and a modern style
+            # Create an HTML template with extracted information
             html_template = f"""
             <!DOCTYPE html>
             <html>
@@ -324,7 +355,7 @@ def index():
             </head>
             <body>
                 <div class="container">
-                    <h1>Car Information</h1>delete
+                    <h1>Car Information</h1>
                    <p><strong>Price Range:</strong> <span class="highlight-text">{price_range_text}</span></p>
                     <img class="car-image" src="{image_url}" alt="Car Image">
                 </div>
@@ -335,6 +366,9 @@ def index():
             # Save the HTML template to car_info.html
 
             with open('/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html', 'w', encoding='utf-8') as html_file:
+                html_file.write(html_template)
+
+            with open('/home/nyxablaze/price-scraper/carsales-scraper/logs/log' + str(logcounter) + '/car_info.html', 'w', encoding='utf-8') as html_file:
                 html_file.write(html_template)
 
             print("Car information has been saved to car_info.html.")
@@ -369,7 +403,7 @@ def index():
             else:
                 image_url = ""
 
-            # Create an HTML template with extracted information and a modern style
+            # Create an HTML template with extracted information
             html_template = f"""
             <!DOCTYPE html>
             <html>
@@ -419,10 +453,14 @@ def index():
             with open('/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html', 'w', encoding='utf-8') as html_file:
                 html_file.write(html_template)
 
-            print("Car information has been saved to car_info.html.")
-            car_information_exists = True
-            print("car information found")
+            with open('/home/nyxablaze/price-scraper/carsales-scraper/logs/log' + str(logcounter) + '/car_info.html', 'w', encoding='utf-8') as html_file:
+                html_file.write(html_template)
 
+            print("Car information has been saved to car_info.html.")
+            
+            car_information_exists = True
+            print("car information found for specific body type")
+    logcounter += 1
     return render_template('index.html', car_information_exists=car_information_exists, error_message=error_message)
 
 directory = os.getcwd()
@@ -450,4 +488,4 @@ def delete_car_info():
         return str(e), 500  # Return an error message if something goes wrong
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    app.run(debug=True, host='0.0.0.0', port=8080, threaded=True, use_reloader=False)
