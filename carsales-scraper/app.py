@@ -8,10 +8,11 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 from urllib.parse import urljoin, urlparse
 from jinja2 import TemplateNotFound
+from datetime import datetime
 import atexit
 directory = os.getcwd()
 architecture = platform.system()
-
+logcounter = 0
 
 app = Flask(__name__, static_folder='/home/nyxablaze/price-scraper/carsales-scraper', template_folder='/home/nyxablaze/price-scraper/carsales-scraper/templates')
 
@@ -40,6 +41,22 @@ def index():
         variant = request.form.get('variant').lower()
         variant = variant.replace (' ', '-')
         bodytype = request.form.get('bodytype').lower()
+        now = datetime.now()
+
+        os.mkdir('/home/nyxablaze/price-scraper/carsales-scraper/logs/log' + logcounter)
+        with open("log" + logcounter + ".txt", 'a') as f:
+            f.write(make)
+            f.write('\n')
+            f.write(model)
+            f.write('\n')
+            f.write(year)
+            f.write('\n')
+            f.write(variant)
+            f.write('\n')
+            f.write(bodytype)
+            f.write('\n')
+            f.write("the date was ")
+            f.write(now)
 
         if bodytype == 'hatchback':
             bodytype = 'hatch'
@@ -250,7 +267,10 @@ def index():
             except Exception as ex:
                 print(f"An error occurred for {url}: {ex}")
                 error_message = "The provided input did not match any cars. Please check your input and try again."
+                with open("log" + logcounter + ".txt", 'a') as f:
+                    f.write('/n /n ERROR')
                 print(error_message)
+                logcounter = logcounter + 1
 
         # Check if a matching body type was found
         if not matching_body_type_found:
@@ -337,8 +357,12 @@ def index():
             with open('/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html', 'w', encoding='utf-8') as html_file:
                 html_file.write(html_template)
 
+            with open('/home/nyxablaze/price-scraper/carsales-scraper/logs/log' + logcounter + '/car_info.html', 'w', encoding='utf-8') as html_file:
+                html_file.write(html_template)
+
             print("Car information has been saved to car_info.html.")
             car_information_exists = True
+            logcounter = logcounter + 1
         else:
             # Extract the price when new (EGC)
             price_when_new_elements = find_element_case_insensitive('p', 'Price when new (EGC) ^')
@@ -419,9 +443,15 @@ def index():
             with open('/home/nyxablaze/price-scraper/carsales-scraper/templates/car_info.html', 'w', encoding='utf-8') as html_file:
                 html_file.write(html_template)
 
+            with open('/home/nyxablaze/price-scraper/carsales-scraper/logs/log' + logcounter + '/car_info.html', 'w', encoding='utf-8') as html_file:
+                html_file.write(html_template)
+
             print("Car information has been saved to car_info.html.")
             car_information_exists = True
             print("car information found")
+            logcounter = logcounter + 1
+
+    
 
     return render_template('index.html', car_information_exists=car_information_exists, error_message=error_message)
 
