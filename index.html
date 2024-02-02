@@ -124,12 +124,42 @@
             xhr.open('GET', '/delete_car_info', true); 
             xhr.send();
         });
+
+        // Function to fetch and update car_info.html
+        function updateCarInfo() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/get_car_info', true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var carInfoDiv = document.querySelector('.car-info');
+                        carInfoDiv.innerHTML = xhr.responseText;
+                    }
+                }
+            };
+
+            xhr.send();
+        }
+
+        // Function to show overlay and delay form submission
+        function showOverlay(event) {
+            event.preventDefault(); // Prevent form submission
+            var overlay = document.getElementById("overlay");
+            overlay.style.display = "flex"; // Show the overlay
+
+            setTimeout(function () {
+                // Delay form submission for 1 second
+                event.target.submit(); // Proceed with the form submission
+                updateCarInfo(); // Fetch and update car_info.html after submission
+            }, 1000);
+        }
     </script>
 </head>
 <body>
     <div class="container">
         <h1>Car Information Lookup</h1>
-        <form method="POST" onsubmit="showOverlay(event)">
+        <form method="POST" onsubmit="showOverlay(event);">
             <label for="make">Make:</label>
             <input type="text" id="make" name="make" required>
 
@@ -150,9 +180,9 @@
 	<a href='https://nyxablaze.tech/documentation/sidescraper.html'><h3>documentation</h3></a>
 	
         {% if car_information_exists %}
-            <div class="car-info"> <!-- Add a CSS class to this div -->
-                {% include 'car_info.html' ignore missing %}
-            </div>
+        <div class="car-info"> <!-- Add a CSS class to this div -->
+            {% include 'car_info.html' ignore missing %}
+        </div>
         {% endif %}
         {% if error_message %}
         <div class="error_message">
@@ -166,18 +196,18 @@
     <div id="overlay" class="overlay">
         <div class="spinner"></div>
     </div>
-
     <script>
         function showOverlay(event) {
             event.preventDefault(); // Prevent form submission
             var overlay = document.getElementById("overlay");
             overlay.style.display = "flex"; // Show the overlay
-
-            setTimeout(function() {
+    
+            setTimeout(function () {
                 // Delay form submission for 1 second
                 event.target.submit(); // Proceed with the form submission
             }, 1000);
         }
+<<<<<<< HEAD:carsales-scraper/templates/index.html
         // Function to manually trigger the /delete_car_info route
         function deleteCarInfo() {
         var xhr = new XMLHttpRequest();
@@ -192,6 +222,35 @@
             };
             xhr.send();
         }
+=======
+        function updateCarInfo() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/car_info', true);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var carInfoDiv = document.querySelector('.car-info');
+                    carInfoDiv.innerHTML = xhr.responseText;
+                }
+            }
+        };
+
+        xhr.send();
+    }
+
+    // Call the updateCarInfo function when the page loads
+    window.addEventListener('load', function () {
+        updateCarInfo();
+    });
+    </script>
+
+    <script>
+        // Call the updateCarInfo function when the page loads
+        window.addEventListener('load', function () {
+            updateCarInfo();
+        });
+>>>>>>> origin/master:index.html
     </script>
 </body>
 </html>

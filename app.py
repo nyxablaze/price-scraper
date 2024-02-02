@@ -23,11 +23,11 @@ def index():
     error_message = None
 
     if architecture == "Windows":
-        directory_path = (directory + r"\carsales-scraper\templates\\")
-        directory = r'\carsales-scraper\\'
+        directory_path = (directory + r"\\")
+        
     elif architecture in ["Linux", "Darwin"]:
-        directory_path = (directory + r"/carsales-scraper/templates/")
-        directory = r'/carsales-scraper/'
+        directory_path = (directory + r"/")
+       
 
     price_range_text = None
 
@@ -274,7 +274,10 @@ def index():
 
         # Check if a matching body type was found
         if not matching_body_type_found:
-            print(f"No website with the bodytype '{bodytype}' was found.")
+            if not bodytype:
+                print("No website matched because bodytype is blank.")
+            else:
+                print(f"No website with the bodytype '{bodytype}' was found.")
 
         # Load the HTML content from output.html with the specified encoding
         with open('output.html', 'r', encoding='utf-8-sig', errors='ignore') as file:
