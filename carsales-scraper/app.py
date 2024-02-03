@@ -202,13 +202,7 @@ def index():
                     bodytype = 'hatch'
                 response = requests.get(url)
                 if response.status_code != 200:
-                    print(f"HTTP Error {response.status_code}: An error occurred for {url}")
-                    print(f"An error occurred for {url}: {ex}")
-                    error_message = "The provided inputs did not match any cars. Please check your inputs, and try again"
-                    with open("/home/nyxablaze/price-scraper/carsales-scraper/logs/log" + str(logcounter) + "/log" + str(logcounter) + '.txt', 'a') as f:
-                        f.write("\n \nERROR - search inputs matched no results.")
-                    logcounter += 1
-                    return render_template('index.html', car_information_exists=False, error_message=error_message)
+                    raise Exception("Car not found")
                 else:
                     option = option + 1
                     optionstring = str(option)
@@ -272,11 +266,12 @@ def index():
                             print(f"HTML file {optionstring} does not contain the bodytype: {bodytype}")
                     else:
                         print("No title found for", url)
-            except:
-                print("an unknown error occurred")
-                error_message = "An unknown error occurred. Please inform the developer, with the steps you did to produce this page."
+            except Exception as ex:
+                print(f"HTTP Error {response.status_code}: An error occurred for {url}")
+                print(f"An error occurred for {url}: {ex}")
+                error_message = "The provided inputs did not match any cars. Please check your inputs, and try again"
                 with open("/home/nyxablaze/price-scraper/carsales-scraper/logs/log" + str(logcounter) + "/log" + str(logcounter) + '.txt', 'a') as f:
-                    f.write("\n \nERROR - UNKNOWN ERROR")
+                    f.write("\n \nERROR - search inputs matched no results.")
                 logcounter += 1
                 return render_template('index.html', car_information_exists=False, error_message=error_message)
 
